@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt 
+import cv2
+image = cv2.imread(r"C:\mlb internship\DAY5\flower.jpg", 0)
+dark = (image * 0.5).astype(np.uint8)
+bright=np.clip(image+80,0,255).astype(np.uint8)
+normal=image
+def manual_histogram(img):
+    hist=np.zeros(256,dtype=int)
+    for row in img:
+        for pixel in row:
+            hist[pixel] +=1
+    return hist
+histdark=manual_histogram(dark)
+histnormal = manual_histogram(normal)
+histbright = manual_histogram(bright)
+plt.figure(figsize=(12, 8))
+plt.subplot(2, 3, 1)
+plt.imshow(dark, cmap="gray")
+plt.title("Dark Image")
+plt.axis("off")
+plt.subplot(2, 3, 2)
+plt.imshow(normal, cmap="gray")
+plt.title("Normal Image")
+plt.axis("off")
+plt.subplot(2, 3, 3)
+plt.imshow(bright, cmap="gray")
+plt.title("Bright Image")
+plt.axis("off")
+plt.subplot(2, 3, 4)
+plt.plot(hist_dark)
+plt.title("Dark Histogram")
+plt.subplot(2, 3, 5)
+plt.plot(hist_normal)
+plt.title("Normal Histogram")
+plt.subplot(2, 3, 6)
+plt.plot(hist_bright)
+plt.title("Bright Histogram")
+plt.tight_layout()
+plt.show()
