@@ -1,0 +1,5 @@
+from PIL import Image, ImageOps
+img = Image.open("flower.jpg")
+padded = ImageOps.expand(img, border=50, fill="black")
+padded.show()
+padded.save("padded.jpg")

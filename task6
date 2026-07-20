@@ -1,0 +1,5 @@
+from PIL import Image
+img = Image.open("flower.jpg")
+resized = img.resize((500, 500))
+resized.show()
+resized.save("resized.jpg")

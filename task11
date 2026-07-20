@@ -1,0 +1,8 @@
+from PIL import Image
+import numpy as np
+img = Image.open("flower.jpg")
+image = np.array(img)
+normalized = image / 255.0
+print(normalized)
+print("Min:", normalized.min())
+print("Max:", normalized.max())

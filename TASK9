@@ -1,0 +1,9 @@
+from PIL import Image
+img = Image.open("flower.jpg")
+translated = img.transform(
+    img.size,
+    Image.AFFINE,
+    (1, 0, 100, 0, 1, 50)
+)
+translated.show()
+translated.save("translated.jpg")

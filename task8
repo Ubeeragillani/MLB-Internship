@@ -1,0 +1,5 @@
+from PIL import Image
+img=Image.open("flower.jpg")
+flipping=img.transpose(Image.FLIP_LEFT_RIGHT)
+flipping.show()
+flipping.save("horziontol save")
