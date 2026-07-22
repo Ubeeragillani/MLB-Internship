@@ -1,0 +1,19 @@
+import math
+import cv2
+points = [
+    ((10, 20), (40, 60)),
+    ((50, 50), (150, 100)),
+    ((100, 200), (250, 300))
+]
+for p1, p2 in points:
+    x1, y1 = p1
+    x2, y2 = p2
+    dx = x2 - x1
+    dy = y2 - y1
+    manualdist = (dx**2 + dy**2) ** 0.5
+    mathdis = math.sqrt((dx**2) + (dy**2))
+    print("point 1 ", p1)
+    print("point 2 ", p2)
+    print("manual distance:", manualdist)
+    print("using math.sqrt():", mathdis)
+    print("-" * 40)

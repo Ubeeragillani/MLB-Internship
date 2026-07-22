@@ -1,0 +1,22 @@
+import cv2
+import matplotlib.pyplot as plt
+image=cv2.imread("flower.jpg")
+channel=image.shape
+h=image.shape
+w=image.shape
+print (" total ",h,w,channel)
+points=[(50,50),
+        (100,100),
+        (200,209)
+        ]
+for x,y in points:
+    pixel=image[y,x]
+    print(f"coordinates ({x},{y})->pixel value ={pixel}")
+    cv2.circle(image,(x,y),5,(0,0,255),-1)
+    cv2.putText(image, f"({x},{y})", (x+10, y-10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+plt.imshow(image)
+plt.title("cordintae system ")
+plt.axis("off")
+plt.show()
