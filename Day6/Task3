@@ -1,0 +1,48 @@
+import cv2
+import matplotlib.pyplot as plt
+image = cv2.imread("flower.jpg", cv2.IMREAD_GRAYSCALE)
+height, width = image.shape
+minimum = 255
+maximum = 0
+total = 0
+range1 = 0
+range2 = 0
+range3 = 0
+range4 = 0
+range5 = 0
+for i in range(height):
+    for j in range(width):
+        pixel = int(image[i, j])
+        total += pixel
+        if pixel < minimum:
+            minimum = pixel
+        if pixel > maximum:
+            maximum = pixel
+        if 0 <= pixel <= 50:
+            range1 += 1
+        elif 51 <= pixel <= 100:
+            range2 += 1
+        elif 101 <= pixel <= 150:
+            range3 += 1
+        elif 151 <= pixel <= 200:
+            range4 += 1
+        elif 201 <= pixel <= 255:
+            range5 += 1
+average = total / (height * width)
+print("minimum intensity ", minimum)
+print("maximum inntensity", maximum)
+print("avg intensity ", average)
+print("pixel counts in difeer ranges")
+print("0 - 50   :", range1)
+print("51 - 100 :", range2)
+print("101 - 150:", range3)
+print("151 - 200:", range4)
+print("201 - 255:", range5)
+ranges = ["0-50", "51-100", "101-150", "151-200", "201-255"]
+counts = [range1, range2, range3, range4, range5]
+plt.figure(figsize=(8,5))
+plt.bar(ranges, counts)
+plt.title("pixel intensity distribution")
+plt.xlabel("intensity range")
+plt.ylabel("no of pixels")
+plt.show()

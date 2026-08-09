@@ -1,0 +1,68 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+image = cv2.imread("flower.jpg", cv2.IMREAD_GRAYSCALE)
+height, width = image.shape
+identity_kernel = np.array([
+    [0, 0, 0],
+    [0, 1, 0],
+    [0, 0, 0]
+])
+blur_kernel = np.array([
+    [1/9, 1/9, 1/9],
+    [1/9, 1/9, 1/9],
+    [1/9, 1/9, 1/9]
+])
+sharpen_kernel = np.array([
+    [0, -1, 0],
+    [-1, 5, -1],
+    [0, -1, 0]
+])
+edge_kernel = np.array([
+    [-1, -1, -1],
+    [-1, 8, -1],
+    [-1, -1, -1]
+])
+def manual(image, kernel):
+    height, width = image.shape
+    output = np.zeros((height, width), dtype=np.uint8)
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            total = 0
+            for m in range(3):
+                for n in range(3):
+                    pixel = int(image[i + m - 1, j + n - 1])
+                    total += pixel * kernel[m, n]
+            if total < 0:
+                total = 0
+            elif total > 255:
+                total = 255
+            output[i, j] = int(total)
+    return output
+identity = manual(image, identity_kernel)
+blur = manual(image, blur_kernel)
+sharpen = manual(image, sharpen_kernel)
+edge = manual(image, edge_kernel)
+plt.figure(figsize=(15,10))
+plt.subplot(2,3,1)
+plt.imshow(image, cmap="gray")
+plt.title("Original")
+plt.axis("off")
+plt.subplot(2,3,2)
+plt.imshow(identity, cmap="gray")
+plt.title("Identity Kernel")
+plt.axis("off")
+plt.subplot(2,3,3)
+plt.imshow(blur, cmap="gray")
+plt.title("Blur Kernel")
+plt.axis("off")
+plt.subplot(2,3,4)
+plt.imshow(sharpen, cmap="gray")
+plt.title("Sharpen Kernel")
+plt.axis("off")
+plt.subplot(2,3,5)
+plt.imshow(edge, cmap="gray")
+plt.title("Edge Detection Kernel")
+plt.axis("off")
+plt.tight_layout()
+plt.show()
