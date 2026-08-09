@@ -1,0 +1,37 @@
+
+# What is the task?
+# Calculate a grayscale histogram using NumPy by counting
+# the frequency of every intensity value from 0 to 255.
+# What is happening?
+# The input image is converted into grayscale. NumPy is then
+# used to count how many pixels have each intensity value.
+# The resulting frequencies are plotted as a histogram.
+# Input:
+# nature.jpg - the input image.
+# Expected Output:
+# A grayscale image and its histogram will be displayed.
+# The histogram contains 256 intensity values (0-255).
+# The height of each bar represents the number of pixels
+# having that particular intensity.
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+image = cv2.imread("nature.jpg")
+if image is None:
+    print("Image not found!")
+else:
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    histogram = np.bincount(gray.ravel(), minlength=256)
+    intensity = np.arange(256)
+    plt.subplot(1, 2, 1)
+    plt.imshow(gray, cmap="gray")
+    plt.title("Grayscale Nature Image")
+    plt.axis("off")
+    plt.subplot(1, 2, 2)
+    plt.bar(intensity, histogram, color="black", width=1)
+    plt.title("Histogram using NumPy")
+    plt.xlabel("Pixel Intensity (0-255)")
+    plt.ylabel("Frequency")
+    plt.xlim([0, 255])
+    plt.tight_layout()
+    plt.show()
