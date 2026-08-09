@@ -1,3 +1,0 @@
-from PIL import Image
-img = Image.open("flower.jpg")
-img.save("saved_flower.jpg")

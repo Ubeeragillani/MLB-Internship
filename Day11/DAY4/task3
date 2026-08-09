@@ -1,4 +1,0 @@
-from PIL import Image
-img = Image.open("flower.jpg")
-copyimg = img.copy()
-copyimg.save("copy_flower.jpg")
