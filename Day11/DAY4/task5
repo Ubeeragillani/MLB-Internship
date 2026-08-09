@@ -1,0 +1,5 @@
+from PIL import Image
+img = Image.open("flower.jpg")
+cropped = img.crop((200, 200, 700, 700))
+cropped.show()
+cropped.save("cropped.jpg")

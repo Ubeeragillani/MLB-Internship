@@ -1,0 +1,26 @@
+import math
+points = [
+    ((10, 20), (40, 60)),
+    ((50, 50), (150, 100)),
+    ((100, 200), (250, 300))
+]
+for p1, p2 in points:
+    x1, y1 = p1
+    x2, y2 = p2
+    dx = x2 - x1
+    dy = y2 - y1
+    euclmanual = (dx**2 + dy**2) ** 0.5
+    euclmath = math.sqrt(dx**2 + dy**2)
+    manhattan = abs(dx) + abs(dy)
+    print("Point 1:", p1)
+    print("Point 2:", p2)
+    print("Euclidean Distance (Manual):", euclmanual)
+    print("Euclidean Distance (math.sqrt):", euclmath)
+    print("Manhattan Distance:", manhattan)
+    print("-" * 40)
+print("Comparison")
+print("Euclidean Distance gives the shortest straight line distance.")
+print("Manhattan Distance gives the distance by moving only horizontally and vertically.")
+print("Where They Are Used")
+print("Euclidean Distance is suitable for finding the direct distance between two points It is commonly used in image processing, object detection, and feature matching.")
+print("Manhattan Distance is suitable when movement is only allowed in horizontal and vertical directions.")

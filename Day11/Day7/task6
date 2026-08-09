@@ -1,0 +1,85 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import os
+image_path = os.path.join(os.path.dirname(__file__), "flower.jpg")
+image = cv2.imread(image_path)
+if image is None:
+    print("Image not found!")
+    exit()
+noise = np.zeros_like(image)
+cv2.randn(noise, (0, 0, 0), (25, 25, 25))
+noisy = cv2.add(image, noise)
+kernel_sizes = [3, 5, 7]
+for k in kernel_sizes:
+    print("\n" + "=" * 60)
+    print(f"Kernel Size: {k} x {k}")
+    print("=" * 60)
+    start = time.time()
+    mean = cv2.blur(noisy, (k, k))
+    mean_time = time.time() - start
+    start = time.time()
+    gaussian = cv2.GaussianBlur(noisy, (k, k), 0)
+    gaussian_time = time.time() - start
+    start = time.time()
+    median = cv2.medianBlur(noisy, k)
+    median_time = time.time() - start
+    start = time.time()
+    bilateral = cv2.bilateralFilter(noisy, 9, 75, 75)
+    bilateral_time = time.time() - start
+    images = [
+        cv2.cvtColor(noisy, cv2.COLOR_BGR2RGB),
+        cv2.cvtColor(mean, cv2.COLOR_BGR2RGB),
+        cv2.cvtColor(gaussian, cv2.COLOR_BGR2RGB),
+        cv2.cvtColor(median, cv2.COLOR_BGR2RGB),
+        cv2.cvtColor(bilateral, cv2.COLOR_BGR2RGB)
+    ]
+
+    titles = [
+        "Noisy",
+        f"Mean {k}x{k}",
+        f"Gaussian {k}x{k}",
+        f"Median {k}x{k}",
+        "Bilateral"
+    ]
+
+    plt.figure(figsize=(15,5))
+
+    for i in range(5):
+        plt.subplot(1,5,i+1)
+        plt.imshow(images[i])
+        plt.title(titles[i])
+        plt.axis("off")
+
+    plt.tight_layout()
+    plt.show()
+
+    print("{:<12} {:<18}".format("Filter", "Processing Time (s)"))
+    print("-"*32)
+    print("{:<12} {:.6f}".format("Mean", mean_time))
+    print("{:<12} {:.6f}".format("Gaussian", gaussian_time))
+    print("{:<12} {:.6f}".format("Median", median_time))
+    print("{:<12} {:.6f}".format("Bilateral", bilateral_time))
+
+print("\nObservations")
+print("-"*60)
+print("3x3 Kernel")
+print("• Image remains sharp.")
+print("• Removes a small amount of noise.")
+print("• Very little blur.")
+print("• Fast processing.")
+print("5x5 Kernel")
+print("• Good balance between sharpness and noise reduction.")
+print("• Moderate blur.")
+print("• Suitable for most images.")
+print("7x7 Kernel")
+print("• Removes more noise.")
+print("• Image becomes noticeably blurrier.")
+print("• Fine details are lost.")
+print("• Processing time increases.")
+print("Overall Conclusion")
+print("• Smaller kernels preserve details.")
+print("• Larger kernels remove more noise but increase blur.")
+print("• 5x5 is usually the best compromise.")
+print("• Bilateral filter preserves edges best but takes the most processing time.")

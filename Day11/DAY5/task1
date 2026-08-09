@@ -1,0 +1,36 @@
+import matplotlib.pyplot as plt
+import cv2
+import numpy as np
+img = cv2.imread(r"C:\mlb internship\DAY5\flower.jpg", cv2.IMREAD_GRAYSCALE)
+def binary(img, t, maxval=255):
+    return np.where(img > t, maxval, 0).astype(np.uint8)
+def binary_inv(img, t, maxval=255):
+    return np.where(img > t, 0, maxval).astype(np.uint8)
+def trunc(img, t):
+    return np.minimum(img, t).astype(np.uint8)
+
+def tozero(img, t):
+    return np.where(img > t, img, 0).astype(np.uint8)
+
+def tozero_inv(img, t):
+    return np.where(img > t, 0, img).astype(np.uint8)
+if __name__ == "__main__":
+    t = 120
+
+    results = {
+        "original": img,
+        "binary": binary(img, t),
+        "binary_inv": binary_inv(img, t),
+        "trunc": trunc(img, t),
+        "tozero": tozero(img, t),
+        "tozero_inv": tozero_inv(img, t),
+    }
+
+    fig, axes = plt.subplots(2, 3, figsize=(12, 8))
+    for ax, (name, out) in zip(axes.ravel(), results.items()):
+        ax.imshow(out, cmap="gray", vmin=0, vmax=255)
+        ax.set_title(name)
+        ax.axis("off")
+    plt.tight_layout()
+    plt.savefig("thresholding_results .png")
+    print("saved thresholding_results.png")

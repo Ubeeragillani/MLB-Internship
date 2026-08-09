@@ -1,0 +1,35 @@
+# In this task, we improve the contrast of the image using
+# histogram equalization. We use CDF and NumPy to change
+# the pixel values. We compare the original image and its
+# histogram with the equalized image and histogram.
+# Input: nature.jpg
+# Output: Better contrast image and its histogram.
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+image = cv2.imread("nature.jpg", 0)
+hist = np.bincount(image.ravel(), minlength=256)
+cdf = hist.cumsum()
+cdf_min = cdf[cdf > 0].min()
+cdf_normalized = ((cdf - cdf_min) * 255 /
+                  (cdf[-1] - cdf_min)).astype(np.uint8)
+equalized = cdf_normalized[image]
+plt.figure(figsize=(12, 8))
+plt.subplot(2, 2, 1)
+plt.imshow(image, cmap="gray")
+plt.title("Original Image")
+plt.axis("off")
+plt.subplot(2, 2, 2)
+plt.hist(image.ravel(), bins=256, range=[0, 256], color="black")
+plt.title("Original Histogram")
+plt.subplot(2, 2, 3)
+plt.imshow(equalized, cmap="gray")
+plt.title("Equalized Image")
+plt.axis("off")
+
+plt.subplot(2, 2, 4)
+plt.hist(equalized.ravel(), bins=256, range=[0, 256], color="black")
+plt.title("Equalized Histogram")
+
+plt.tight_layout()
+plt.show()

@@ -1,0 +1,5 @@
+from PIL import Image
+img = Image.open("flower.jpg")
+rotated = img.rotate(90)
+rotated.show()
+rotated.save("rotated.jpg")
