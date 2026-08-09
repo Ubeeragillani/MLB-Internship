@@ -1,4 +1,0 @@
-gradio
-opencv-python-headless
-numpy
-matplotlib
