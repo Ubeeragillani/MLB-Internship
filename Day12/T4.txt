@@ -1,0 +1,27 @@
+## Task 4: Feature Descriptors
+
+### Objective
+
+The objective of this task is to explore different feature descriptors including SIFT, ORB, BRIEF, and BRISK. The task aims to detect keypoints, generate feature descriptors, and compare these methods based on the number of keypoints, descriptor size, descriptor type, and processing speed.
+
+### Method
+
+A sample image was selected and converted into grayscale. SIFT, ORB, BRIEF, and BRISK were used to detect important keypoints and generate descriptors. The detected keypoints were visualized on the image. The number of keypoints, descriptor size, descriptor type, and execution time were recorded and compared.
+
+### Comparison
+
+| Feature             | SIFT     | ORB       | BRIEF     | BRISK    |
+| ------------------- | -------- | --------- | --------- | -------- |
+| Descriptor Type     | Float    | Binary    | Binary    | Binary   |
+| Descriptor Size     | 128      | 32 bytes  | 256 bits  | 64 bytes |
+| Speed               | Moderate | Very Fast | Very Fast | Fast     |
+| Scale Robustness    | Good     | Moderate  | Low       | Good     |
+| Rotation Robustness | Good     | Good      | Limited   | Good     |
+
+### Observation
+
+SIFT provides distinctive and robust feature descriptors but is comparatively slower. ORB provides binary descriptors and is much faster, making it suitable for real-time applications. BRIEF is a simple and fast binary descriptor based on intensity comparisons between pairs of pixels. BRISK is also a binary descriptor and provides a good balance between speed and robustness.
+
+### Conclusion
+
+The experiment shows that each feature descriptor has different advantages. SIFT provides strong and robust features, while ORB, BRIEF, and BRISK provide faster binary descriptors. Therefore, the selection of a descriptor depends on the requirements of the application, such as accuracy, speed, and robustness.

@@ -1,0 +1,17 @@
+## Task 3: FAST Feature Detector
+
+### Objective
+
+The objective of this task is to implement the FAST feature detector, detect keypoints using different threshold values, visualize the detected keypoints, and compare FAST with Harris and Shi-Tomasi.
+
+### Observation
+
+FAST successfully detected corner-like keypoints in the image. When a low threshold was used, more keypoints were detected because smaller intensity differences were accepted. As the threshold increased, the number of detected keypoints decreased and stronger features were retained.
+
+### Comparison with Harris and Shi-Tomasi
+
+FAST is designed mainly for speed and is generally faster than Harris and Shi-Tomasi. Harris and Shi-Tomasi calculate corner responses using image intensity information and are useful for detecting strong corners. FAST uses the intensity values of pixels around a candidate point and performs a rapid segment test.
+
+### Conclusion
+
+FAST is a useful feature detector when speed is important, especially in real-time computer vision applications. The threshold controls the number of detected keypoints: lower thresholds produce more keypoints, while higher thresholds produce fewer and stronger keypoints.

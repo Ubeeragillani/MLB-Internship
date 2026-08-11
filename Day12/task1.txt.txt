@@ -1,0 +1,27 @@
+## Task 1: Image Features & Keypoints
+
+
+The objective of this task is to identify important features or keypoints in different images, detect these keypoints, visualize them, and understand the difference between corners, edges, and flat regions.
+
+ Method
+
+Three different images were selected for this task. The images were converted into grayscale and the **Shi-Tomasi corner detection method** was used to detect important keypoints. The detected keypoints were marked with red circles and visualized on the original images.
+
+Difference Between Corners, Edges, and Flat Regions
+
+Corners:
+Corners are points where the image intensity changes significantly in two directions. They are highly useful as feature points because they are distinctive and can usually be detected reliably.
+
+Edges:
+Edges are boundaries where the intensity changes strongly in mainly one direction. Examples include the boundaries of objects or lines in an image.
+
+Flat Regions:
+Flat regions have very little intensity variation. Examples include a clear sky or a plain wall. These regions usually contain fewer useful keypoints because they do not have distinctive visual information.
+
+ Observation
+
+The detected keypoints are mainly concentrated around corners, intersections, and textured regions of the images. Flat regions contain fewer keypoints because there is little intensity variation. Images with more texture and details generally produce more keypoints, while simple images with large flat areas produce fewer keypoints.
+
+Result:
+
+The keypoints were successfully detected and visualized in all three images. The experiment demonstrates that corners and textured regions are more suitable for feature detection than edges and flat regions.

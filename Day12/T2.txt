@@ -1,0 +1,21 @@
+## Task 2: Harris & Shi-Tomasi Corner Detection
+
+### Objective
+
+The objective of this task is to implement Harris and Shi-Tomasi corner detection methods, detect corners in an image, test different threshold values, visualize the results, and compare both methods.
+
+### Observation
+
+Harris Corner Detection successfully detected strong corner points in the image. When the threshold was decreased, more corner points were detected. Increasing the threshold reduced the number of detected corners and retained stronger features.
+
+Shi-Tomasi also detected important corner points. Similar to Harris, lower threshold values produced more detected corners, while higher threshold values produced fewer and stronger corners.
+
+### Comparison
+
+Harris and Shi-Tomasi are both based on the local intensity structure of an image. Harris uses a corner response calculated from the determinant and trace of the structure matrix. Shi-Tomasi uses the minimum eigenvalue of the structure matrix.
+
+In the experiment, both methods successfully detected corners. Harris provides a strong general-purpose corner response, while Shi-Tomasi directly selects points with strong minimum eigenvalues and is commonly useful for selecting good features for tracking.
+
+### Conclusion
+
+The experiment shows that threshold selection has a significant effect on corner detection. A low threshold detects more points, while a high threshold detects fewer and stronger corners. Both Harris and Shi-Tomasi are effective methods for detecting important corner features in images.

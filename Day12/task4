@@ -1,0 +1,228 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import pandas as pd
+
+image_path = "source.jpg"
+
+image = cv2.imread(image_path)
+
+if image is None:
+    raise FileNotFoundError("Image not found: " + image_path)
+
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+sift = cv2.SIFT_create()
+
+start = time.perf_counter()
+sift_keypoints, sift_descriptors = sift.detectAndCompute(gray, None)
+sift_time = time.perf_counter() - start
+
+orb = cv2.ORB_create(nfeatures=500)
+
+start = time.perf_counter()
+orb_keypoints, orb_descriptors = orb.detectAndCompute(gray, None)
+orb_time = time.perf_counter() - start
+
+start = time.perf_counter()
+
+harris = cv2.cornerHarris(
+    np.float32(gray),
+    2,
+    3,
+    0.04
+)
+
+threshold = 0.01 * harris.max()
+
+brief_keypoints = []
+
+for y in range(16, gray.shape[0] - 16, 4):
+    for x in range(16, gray.shape[1] - 16, 4):
+        if harris[y, x] > threshold:
+            brief_keypoints.append(
+                cv2.KeyPoint(float(x), float(y), 16)
+            )
+
+        if len(brief_keypoints) >= 300:
+            break
+
+    if len(brief_keypoints) >= 300:
+        break
+
+np.random.seed(42)
+
+pairs = np.random.randint(
+    -8,
+    9,
+    (256, 4)
+)
+
+brief_descriptors = []
+
+for kp in brief_keypoints:
+
+    x = int(kp.pt[0])
+    y = int(kp.pt[1])
+
+    bits = []
+
+    for x1, y1, x2, y2 in pairs:
+
+        p1 = gray[y + y1, x + x1]
+        p2 = gray[y + y2, x + x2]
+
+        bits.append(1 if p1 < p2 else 0)
+
+    brief_descriptors.append(bits)
+
+brief_descriptors = np.array(
+    brief_descriptors,
+    dtype=np.uint8
+)
+
+brief_time = time.perf_counter() - start
+
+start = time.perf_counter()
+
+brisk_keypoints = []
+
+scale = 2
+
+for y in range(16, gray.shape[0] - 16, scale):
+    for x in range(16, gray.shape[1] - 16, scale):
+
+        gx = int(gray[y, x + 1]) - int(gray[y, x - 1])
+        gy = int(gray[y + 1, x]) - int(gray[y - 1, x])
+
+        magnitude = abs(gx) + abs(gy)
+
+        if magnitude > 80:
+            brisk_keypoints.append(
+                cv2.KeyPoint(float(x), float(y), 16)
+            )
+
+        if len(brisk_keypoints) >= 300:
+            break
+
+    if len(brisk_keypoints) >= 300:
+        break
+
+brisk_descriptors = []
+
+for kp in brisk_keypoints:
+
+    x = int(kp.pt[0])
+    y = int(kp.pt[1])
+
+    descriptor = []
+
+    for i in range(64):
+
+        angle = 2 * np.pi * i / 64
+
+        dx = int(round(8 * np.cos(angle)))
+        dy = int(round(8 * np.sin(angle)))
+
+        p1 = gray[y, x]
+        p2 = gray[y + dy, x + dx]
+
+        descriptor.append(1 if p1 < p2 else 0)
+
+    brisk_descriptors.append(descriptor)
+
+brisk_descriptors = np.array(
+    brisk_descriptors,
+    dtype=np.uint8
+)
+
+brisk_time = time.perf_counter() - start
+
+table = pd.DataFrame({
+    "Descriptor": [
+        "SIFT",
+        "ORB",
+        "BRIEF",
+        "BRISK"
+    ],
+    "Keypoints": [
+        len(sift_keypoints),
+        len(orb_keypoints),
+        len(brief_keypoints),
+        len(brisk_keypoints)
+    ],
+    "Descriptor Size": [
+        128,
+        32,
+        256,
+        64
+    ],
+    "Type": [
+        "Float",
+        "Binary",
+        "Binary",
+        "Binary"
+    ],
+    "Speed (seconds)": [
+        round(sift_time, 6),
+        round(orb_time, 6),
+        round(brief_time, 6),
+        round(brisk_time, 6)
+    ]
+})
+
+print(table.to_string(index=False))
+
+sift_image = cv2.drawKeypoints(
+    image,
+    sift_keypoints,
+    None,
+    flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
+)
+
+orb_image = cv2.drawKeypoints(
+    image,
+    orb_keypoints,
+    None,
+    color=(0, 255, 0)
+)
+
+brief_image = cv2.drawKeypoints(
+    image,
+    brief_keypoints,
+    None,
+    color=(255, 0, 0)
+)
+
+brisk_image = cv2.drawKeypoints(
+    image,
+    brisk_keypoints,
+    None,
+    color=(0, 255, 255)
+)
+
+plt.figure(figsize=(16, 12))
+
+plt.subplot(2, 2, 1)
+plt.imshow(cv2.cvtColor(sift_image, cv2.COLOR_BGR2RGB))
+plt.title("SIFT")
+plt.axis("off")
+
+plt.subplot(2, 2, 2)
+plt.imshow(cv2.cvtColor(orb_image, cv2.COLOR_BGR2RGB))
+plt.title("ORB")
+plt.axis("off")
+
+plt.subplot(2, 2, 3)
+plt.imshow(cv2.cvtColor(brief_image, cv2.COLOR_BGR2RGB))
+plt.title("BRIEF")
+plt.axis("off")
+
+plt.subplot(2, 2, 4)
+plt.imshow(cv2.cvtColor(brisk_image, cv2.COLOR_BGR2RGB))
+plt.title("BRISK")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()

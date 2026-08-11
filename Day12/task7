@@ -1,0 +1,85 @@
+import cv2
+import numpy as np
+img1 = cv2.imread("1.jpg")
+img2 = cv2.imread("2.jpg")
+
+if img1 is None or img2 is None:
+    print("Error: Images not found!")
+    exit()
+gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+orb = cv2.ORB_create(nfeatures=1500)
+
+keypoints1, descriptors1 = orb.detectAndCompute(gray1, None)
+keypoints2, descriptors2 = orb.detectAndCompute(gray2, None)
+
+print("Keypoints Image 1:", len(keypoints1))
+print("Keypoints Image 2:", len(keypoints2))
+bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
+matches = bf.knnMatch(descriptors1, descriptors2, k=2)
+good_matches = []
+
+for m, n in matches:
+    if m.distance < 0.75 * n.distance:
+        good_matches.append(m)
+
+print("Good matches before RANSAC:", len(good_matches))
+before_ransac = cv2.drawMatches(
+    img1,
+    keypoints1,
+    img2,
+    keypoints2,
+    good_matches,
+    None,
+    flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
+)
+
+cv2.imshow("Matches Before RANSAC", before_ransac)
+if len(good_matches) >= 4:
+
+    src_pts = np.float32([
+        keypoints1[m.queryIdx].pt
+        for m in good_matches
+    ]).reshape(-1, 1, 2)
+
+    dst_pts = np.float32([
+        keypoints2[m.trainIdx].pt
+        for m in good_matches
+    ]).reshape(-1, 1, 2)
+    homography, mask = cv2.findHomography(
+        src_pts,
+        dst_pts,
+        cv2.RANSAC,
+        5.0
+    )
+    matches_after_ransac = []
+
+    for i, m in enumerate(good_matches):
+        if mask[i]:
+            matches_after_ransac.append(m)
+
+    print(
+        "Good matches after RANSAC:",
+        len(matches_after_ransac)
+    )
+
+    print(
+        "Outliers removed:",
+        len(good_matches) - len(matches_after_ransac)
+    )
+    after_ransac = cv2.drawMatches(
+        img1,
+        keypoints1,
+        img2,
+        keypoints2,
+        matches_after_ransac,
+        None,
+        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
+    )
+
+    cv2.imshow("Matches After RANSAC", after_ransac)
+
+else:
+    print("Not enough matches for RANSAC!")
+cv2.waitKey(0)
+cv2.destroyAllWindows()

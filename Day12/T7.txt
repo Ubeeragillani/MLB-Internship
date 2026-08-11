@@ -1,0 +1,7 @@
+### Description
+
+In this task, the feature matches obtained from Task 6 are analyzed to identify incorrect or outlier matches.
+ RANSAC (Random Sample Consensus) is applied to estimate the correct geometric relationship between the two images 
+while ignoring unreliable matches. The matches are visualized before and after applying RANSAC to clearly show the removal of outliers
+RANSAC is useful because feature matching can produce incorrect correspondences, and removing these outliers improves the accuracy 
+reliability of the matching process.

@@ -1,0 +1,106 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image_path = "source.jpg"
+
+image = cv2.imread(image_path)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+gray = np.float32(gray)
+
+Ix = cv2.Sobel(gray, cv2.CV_32F, 1, 0, 3)
+Iy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, 3)
+
+Ixx = cv2.GaussianBlur(Ix * Ix, (5, 5), 1)
+Iyy = cv2.GaussianBlur(Iy * Iy, (5, 5), 1)
+Ixy = cv2.GaussianBlur(Ix * Iy, (5, 5), 1)
+
+det = Ixx * Iyy - Ixy * Ixy
+trace = Ixx + Iyy
+
+k = 0.04
+harris_response = det - k * (trace ** 2)
+
+harris_thresholds = [0.01, 0.03, 0.05, 0.10]
+
+plt.figure(figsize=(16, 12))
+
+for i, threshold in enumerate(harris_thresholds):
+    result = image.copy()
+    limit = threshold * harris_response.max()
+    points = np.argwhere(harris_response > limit)
+
+    for y, x in points:
+        cv2.circle(result, (x, y), 3, (0, 0, 255), -1)
+
+    plt.subplot(2, 2, i + 1)
+    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    plt.title(f"Harris Threshold = {threshold}")
+    plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+
+lambda1 = 0.5 * (
+    trace + np.sqrt((Ixx - Iyy) ** 2 + 4 * Ixy ** 2)
+)
+
+lambda2 = 0.5 * (
+    trace - np.sqrt((Ixx - Iyy) ** 2 + 4 * Ixy ** 2)
+)
+
+shi_response = np.minimum(lambda1, lambda2)
+
+shi_thresholds = [0.01, 0.03, 0.05, 0.10]
+
+plt.figure(figsize=(16, 12))
+
+for i, threshold in enumerate(shi_thresholds):
+    result = image.copy()
+    limit = threshold * shi_response.max()
+
+    points = np.argwhere(shi_response > limit)
+
+    for y, x in points:
+        cv2.circle(result, (x, y), 3, (0, 255, 0), -1)
+
+    plt.subplot(2, 2, i + 1)
+    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    plt.title(f"Shi-Tomasi Threshold = {threshold}")
+    plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+
+harris_limit = 0.05 * harris_response.max()
+shi_limit = 0.05 * shi_response.max()
+
+harris_points = np.argwhere(harris_response > harris_limit)
+shi_points = np.argwhere(shi_response > shi_limit)
+
+harris_result = image.copy()
+shi_result = image.copy()
+
+for y, x in harris_points:
+    cv2.circle(harris_result, (x, y), 4, (0, 0, 255), -1)
+
+for y, x in shi_points:
+    cv2.circle(shi_result, (x, y), 4, (0, 255, 0), -1)
+
+plt.figure(figsize=(14, 6))
+
+plt.subplot(1, 2, 1)
+plt.imshow(cv2.cvtColor(harris_result, cv2.COLOR_BGR2RGB))
+plt.title(f"Harris Corners: {len(harris_points)}")
+plt.axis("off")
+
+plt.subplot(1, 2, 2)
+plt.imshow(cv2.cvtColor(shi_result, cv2.COLOR_BGR2RGB))
+plt.title(f"Shi-Tomasi Corners: {len(shi_points)}")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+
+print("Harris corners:", len(harris_points))
+print("Shi-Tomasi corners:", len(shi_points))

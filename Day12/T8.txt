@@ -1,0 +1,3 @@
+This mini project develops a simple image matching system using two images of the same object from different views. The system first detects keypoints and generates feature descriptors using ORB. The descriptors are then matched using a Brute-Force Matcher, followed by KNN matching to find the closest feature correspondences. A ratio test is applied to select reliable matches and remove weak matches. Finally, RANSAC is used to identify and remove outlier matches, leaving only the reliable inliers.
+
+The system provides the number of detected keypoints, total KNN matches, good matches after the ratio test, and the number of RANSAC inliers. The final result is visualized by displaying the reliable feature matches between the two input images.

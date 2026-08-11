@@ -1,0 +1,27 @@
+1. Euclidean Distance:
+Euclidean Distance measures the straight-line distance between two feature descriptors. It is mainly used with continuous-valued descriptors, such as SIFT or SURF. A smaller distance means the two descriptors are more similar.
+
+2. Hamming Distance:
+Hamming Distance measures the number of positions at which two binary descriptors are different. It is commonly used with binary feature descriptors such as ORB, BRIEF, and BRISK. A smaller Hamming distance indicates greater similarity.
+
+3. When to use each:
+
+Euclidean Distance → Continuous descriptors (SIFT, SURF)
+Hamming Distance → Binary descriptors (ORB, BRIEF, BRISK)
+
+4. Example:
+For descriptors:
+
+A = [1, 2, 3]
+B = [4, 5, 6]
+
+Euclidean Distance:
+
+√((4−1)² + (5−2)² + (6−3)²) = √27 ≈ 5.20
+
+For binary descriptors:
+
+A = 101101
+B = 100111
+
+Hamming Distance = 2, because they differ at 2 positions.

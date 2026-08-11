@@ -1,0 +1,44 @@
+import cv2
+import matplotlib.pyplot as plt
+
+image_path = "source.jpg"
+
+image = cv2.imread(image_path)
+
+if image is None:
+    raise FileNotFoundError(f"Image not found: {image_path}")
+
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+thresholds = [5, 10, 20, 30]
+
+plt.figure(figsize=(16, 12))
+
+for i, threshold in enumerate(thresholds):
+
+    fast = cv2.FastFeatureDetector_create(
+        threshold=threshold,
+        nonmaxSuppression=True
+    )
+
+    keypoints = fast.detect(gray, None)
+
+    result = cv2.drawKeypoints(
+        image,
+        keypoints,
+        None,
+        color=(0, 255, 0)
+    )
+
+    plt.subplot(2, 2, i + 1)
+    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    plt.title(f"FAST Threshold = {threshold}\nKeypoints = {len(keypoints)}")
+    plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+
+print("FAST Threshold 5:", len(cv2.FastFeatureDetector_create(threshold=5).detect(gray, None)), "keypoints")
+print("FAST Threshold 10:", len(cv2.FastFeatureDetector_create(threshold=10).detect(gray, None)), "keypoints")
+print("FAST Threshold 20:", len(cv2.FastFeatureDetector_create(threshold=20).detect(gray, None)), "keypoints")
+print("FAST Threshold 30:", len(cv2.FastFeatureDetector_create(threshold=30).detect(gray, None)), "keypoints")

@@ -1,0 +1,13 @@
+ Description
+
+In this task, two images of the same object are taken from different viewing angles. 
+Feature detection is performed on both images using ORB, which also generates feature descriptors. 
+A Brute-Force (BF) Matcher is then used to compare the descriptors.
+KNN matching with `k=2` finds the two closest matches for each feature, and the ratio test removes weak or ambiguous matches.
+Finally, the remaining good matches are visualized by drawing lines between corresponding features in both images.
+the purpose of this task is to identify common visual features of the same object when it is viewed from different angles. 
+ORB is used to detect keypoints and generate binary descriptors. These descriptors are matched using a BF Matcher with KNN matching.
+A ratio test is applied to keep only reliable feature correspondences.
+The good matches are then displayed visually, showing which points in the two images represent the same parts of the object.
+
+

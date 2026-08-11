@@ -1,0 +1,21 @@
+import cv2
+import math
+img1 = cv2.imread("nature.jpg", 0)
+img2 = cv2.imread("source.jpg", 0)
+orb = cv2.ORB_create()
+kp1, des1 = orb.detectAndCompute(img1, None)
+kp2, des2 = orb.detectAndCompute(img2, None)
+a = des1[0]
+b = des2[0]
+euclidean = 0
+for i in range(len(a)):
+    euclidean += (int(a[i]) - int(b[i])) ** 2
+
+euclidean = math.sqrt(euclidean)
+hamming = 0
+for i in range(len(a)):
+    xor = int(a[i]) ^ int(b[i])
+    hamming += bin(xor).count("1")
+
+print("Euclidean Distance:", euclidean)
+print("Hamming Distance:", hamming)

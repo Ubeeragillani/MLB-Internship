@@ -1,0 +1,81 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img1 = cv2.imread("source.jpg")
+img2 = cv2.imread("reference.jpg")
+img3 = cv2.imread("nature.jpg")
+
+gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+gray3 = cv2.cvtColor(img3, cv2.COLOR_BGR2GRAY)
+
+def detect_keypoints(gray, image):
+    gray = np.float32(gray)
+
+    ix = cv2.Sobel(gray, cv2.CV_32F, 1, 0, 3)
+    iy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, 3)
+
+    ixx = cv2.GaussianBlur(ix * ix, (5, 5), 1)
+    iyy = cv2.GaussianBlur(iy * iy, (5, 5), 1)
+    ixy = cv2.GaussianBlur(ix * iy, (5, 5), 1)
+
+    response = (ixx * iyy - ixy * ixy) - 0.04 * (ixx + iyy) ** 2
+
+    threshold = 0.01 * response.max()
+
+    local_max = response == cv2.dilate(
+        response,
+        np.ones((7, 7), np.uint8)
+    )
+
+    points = np.argwhere(
+        (response > threshold) & local_max
+    )
+
+    points = sorted(
+        points,
+        key=lambda p: response[p[0], p[1]],
+        reverse=True
+    )[:100]
+
+    output = image.copy()
+
+    for y, x in points:
+        cv2.circle(
+            output,
+            (int(x), int(y)),
+            5,
+            (0, 0, 255),
+            -1
+        )
+
+    return output, len(points)
+
+result1, count1 = detect_keypoints(gray1, img1)
+result2, count2 = detect_keypoints(gray2, img2)
+result3, count3 = detect_keypoints(gray3, img3)
+
+plt.figure(figsize=(18, 6))
+
+plt.subplot(1, 3, 1)
+plt.imshow(cv2.cvtColor(result1, cv2.COLOR_BGR2RGB))
+plt.title(f"Source - {count1} Keypoints")
+plt.axis("off")
+
+plt.subplot(1, 3, 2)
+plt.imshow(cv2.cvtColor(result2, cv2.COLOR_BGR2RGB))
+plt.title(f"Reference - {count2} Keypoints")
+plt.axis("off")
+
+plt.subplot(1, 3, 3)
+plt.imshow(cv2.cvtColor(result3, cv2.COLOR_BGR2RGB))
+plt.title(f"Nature - {count3} Keypoints")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+
+print("Source:", count1, "keypoints")
+print("Reference:", count2, "keypoints")
+print("Nature:", count3, "keypoints")
