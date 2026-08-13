@@ -1,0 +1,41 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+image = cv2.imread("nature.jpg")
+image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+height, width = image.shape[:2]
+src_points = np.float32([
+    [0, 0],
+    [width - 1, 0],
+    [width - 1, height - 1],
+    [0, height - 1]
+])
+dst_points = np.float32([
+    [50, 50],
+    [width - 100, 0],
+    [width - 50, height - 100],
+    [0, height]
+])
+H = cv2.getPerspectiveTransform(src_points, dst_points)
+print("Homography Matrix:")
+print(H)
+transformed_image = cv2.warpPerspective(
+    image,
+    H,
+    (width, height)
+)
+transformed_rgb = cv2.cvtColor(
+    transformed_image,
+    cv2.COLOR_BGR2RGB
+)
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(image_rgb)
+plt.title("Original Image")
+plt.axis("off")
+plt.subplot(1, 2, 2)
+plt.imshow(transformed_rgb)
+plt.title("Perspective Transformed Image")
+plt.axis("off")
+
+plt.show()

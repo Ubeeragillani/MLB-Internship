@@ -1,0 +1,210 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image_files = [
+    "nature.jpg",
+    "reference.jpg",
+    "ref1.jpg"
+]
+
+images = []
+
+for file in image_files:
+    image = cv2.imread(file)
+
+    if image is None:
+        raise FileNotFoundError(f"Could not load {file}")
+
+    max_width = 600
+
+    h, w = image.shape[:2]
+
+    if w > max_width:
+        scale = max_width / w
+        image = cv2.resize(
+            image,
+            (int(w * scale), int(h * scale))
+        )
+
+    images.append(image)
+
+
+def find_homography(img1, img2):
+
+    gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+    orb = cv2.ORB_create(nfeatures=500)
+
+    kp1, des1 = orb.detectAndCompute(gray1, None)
+    kp2, des2 = orb.detectAndCompute(gray2, None)
+
+    if des1 is None or des2 is None:
+        return None
+
+    matcher = cv2.BFMatcher(
+        cv2.NORM_HAMMING,
+        crossCheck=True
+    )
+
+    matches = matcher.match(des2, des1)
+
+    matches = sorted(
+        matches,
+        key=lambda x: x.distance
+    )[:50]
+
+    if len(matches) < 4:
+        return None
+
+    src_points = np.float32([
+        kp2[m.queryIdx].pt
+        for m in matches
+    ]).reshape(-1, 1, 2)
+
+    dst_points = np.float32([
+        kp1[m.trainIdx].pt
+        for m in matches
+    ]).reshape(-1, 1, 2)
+
+    H, mask = cv2.findHomography(
+        src_points,
+        dst_points,
+        cv2.RANSAC,
+        5.0
+    )
+
+    return H
+
+
+def stitch_images(img1, img2):
+
+    H = find_homography(img1, img2)
+
+    if H is None:
+        raise ValueError(
+            "Not enough matching features between images"
+        )
+
+    h1, w1 = img1.shape[:2]
+    h2, w2 = img2.shape[:2]
+
+    corners1 = np.float32([
+        [0, 0],
+        [w1, 0],
+        [w1, h1],
+        [0, h1]
+    ]).reshape(-1, 1, 2)
+
+    corners2 = np.float32([
+        [0, 0],
+        [w2, 0],
+        [w2, h2],
+        [0, h2]
+    ]).reshape(-1, 1, 2)
+
+    warped_corners2 = cv2.perspectiveTransform(
+        corners2,
+        H
+    )
+
+    all_corners = np.concatenate(
+        [corners1, warped_corners2],
+        axis=0
+    )
+
+    x_min, y_min = np.floor(
+        all_corners.min(axis=0).ravel()
+    ).astype(int)
+
+    x_max, y_max = np.ceil(
+        all_corners.max(axis=0).ravel()
+    ).astype(int)
+
+    translation = np.array([
+        [1, 0, -x_min],
+        [0, 1, -y_min],
+        [0, 0, 1]
+    ])
+
+    width = x_max - x_min
+    height = y_max - y_min
+
+    warped_img2 = cv2.warpPerspective(
+        img2,
+        translation @ H,
+        (width, height)
+    )
+
+    canvas_img1 = np.zeros_like(warped_img2)
+
+    x_offset = -x_min
+    y_offset = -y_min
+
+    canvas_img1[
+        y_offset:y_offset + h1,
+        x_offset:x_offset + w1
+    ] = img1
+
+    mask1 = np.zeros(
+        (height, width),
+        dtype=np.uint8
+    )
+
+    mask1[
+        y_offset:y_offset + h1,
+        x_offset:x_offset + w1
+    ] = 255
+
+    mask2 = cv2.warpPerspective(
+        np.ones((h2, w2), dtype=np.uint8) * 255,
+        translation @ H,
+        (width, height)
+    )
+
+    mask1_bool = mask1 > 0
+    mask2_bool = mask2 > 0
+
+    overlap = mask1_bool & mask2_bool
+    only1 = mask1_bool & ~mask2_bool
+    only2 = mask2_bool & ~mask1_bool
+
+    result = np.zeros_like(warped_img2)
+
+    result[only1] = canvas_img1[only1]
+    result[only2] = warped_img2[only2]
+
+    result[overlap] = (
+        0.5 * canvas_img1[overlap] +
+        0.5 * warped_img2[overlap]
+    ).astype(np.uint8)
+
+    return result
+
+
+panorama = images[0]
+
+for i in range(1, len(images)):
+    panorama = stitch_images(
+        panorama,
+        images[i]
+    )
+
+panorama_rgb = cv2.cvtColor(
+    panorama,
+    cv2.COLOR_BGR2RGB
+)
+
+plt.figure(figsize=(16, 8))
+plt.imshow(panorama_rgb)
+plt.title("Generated Panorama")
+plt.axis("off")
+plt.show()
+
+cv2.imwrite(
+    "generated_panorama.jpg",
+    panorama
+)
+
+print("Panorama saved as generated_panorama.jpg")

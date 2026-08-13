@@ -1,0 +1,124 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+img1 = cv2.imread("reference.jpg")
+img2 = cv2.imread("ref1.jpg")
+
+if img1 is None or img2 is None:
+    print("Error Could not load one or both images.")
+    print("Make sure reference.jpg and ref1.jpg are in the same folder")
+    exit()
+
+img1_rgb = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
+img2_rgb = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
+
+src_points = np.float32([
+    [100, 100],
+    [500, 100],
+    [500, 400],
+    [100, 400],
+    [200, 150],
+    [400, 150]
+])
+
+dst_points = np.float32([
+    [120, 80],
+    [520, 120],
+    [480, 430],
+    [80, 380],
+    [220, 140],
+    [410, 160]
+])
+
+def dlt_homography(src_points, dst_points):
+
+    A = []
+
+    for (x, y), (u, v) in zip(src_points, dst_points):
+
+        A.append([
+            -x, -y, -1,
+             0,  0,  0,
+             u*x, u*y, u
+        ])
+
+        A.append([
+             0,  0,  0,
+            -x, -y, -1,
+             v*x, v*y, v
+        ])
+
+    A = np.array(A)
+    U, S, Vt = np.linalg.svd(A)
+    h = Vt[-1]
+    H = h.reshape(3, 3)
+    H = H / H[2, 2]
+
+    return H
+
+H_DLT = dlt_homography(
+    src_points,
+    dst_points
+)
+
+print("\nDLT Homography Matrix:")
+print(H_DLT)
+
+height, width = img1.shape[:2]
+
+warped_DLT = cv2.warpPerspective(
+    img1,
+    H_DLT,
+    (width, height)
+)
+
+warped_DLT_rgb = cv2.cvtColor(
+    warped_DLT,
+    cv2.COLOR_BGR2RGB
+)
+H_RANSAC, mask = cv2.findHomography(
+    src_points,
+    dst_points,
+    cv2.RANSAC,
+    5.0
+)
+
+print("\nRANSAC Homography Matrix:")
+print(H_RANSAC)
+
+print("\nRANSAC Inlier Mask:")
+print(mask.ravel())
+warped_RANSAC = cv2.warpPerspective(
+    img1,
+    H_RANSAC,
+    (width, height)
+)
+
+warped_RANSAC_rgb = cv2.cvtColor(
+    warped_RANSAC,
+    cv2.COLOR_BGR2RGB
+)
+plt.figure(figsize=(15, 8))
+
+plt.subplot(2, 2, 1)
+plt.imshow(img1_rgb)
+plt.title("Image 1 - Original")
+plt.axis("off")
+
+plt.subplot(2, 2, 2)
+plt.imshow(img2_rgb)
+plt.title("Image 2 - Target")
+plt.axis("off")
+
+plt.subplot(2, 2, 3)
+plt.imshow(warped_DLT_rgb)
+plt.title("DLT Perspective Transformation")
+plt.axis("off")
+
+plt.subplot(2, 2, 4)
+plt.imshow(warped_RANSAC_rgb)
+plt.title("RANSAC Perspective Transformation")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()

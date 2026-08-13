@@ -1,0 +1,139 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img1 = cv2.imread("reference.jpg")
+img2 = cv2.imread("ref1.jpg")
+
+if img1 is None or img2 is None:
+    raise FileNotFoundError("Check reference.jpg and ref1.jpg")
+
+max_width = 800
+
+def resize_image(image):
+    h, w = image.shape[:2]
+
+    if w > max_width:
+        scale = max_width / w
+        image = cv2.resize(
+            image,
+            (int(w * scale), int(h * scale))
+        )
+
+    return image
+
+img1 = resize_image(img1)
+img2 = resize_image(img2)
+
+gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+orb = cv2.ORB_create(
+    nfeatures=1000
+)
+
+kp1, des1 = orb.detectAndCompute(gray1, None)
+kp2, des2 = orb.detectAndCompute(gray2, None)
+
+if des1 is None or des2 is None:
+    raise ValueError("Not enough features found in the images")
+
+bf = cv2.BFMatcher(
+    cv2.NORM_HAMMING,
+    crossCheck=True
+)
+
+matches = bf.match(des2, des1)
+
+matches = sorted(
+    matches,
+    key=lambda x: x.distance
+)
+
+matches = matches[:100]
+
+if len(matches) < 4:
+    raise ValueError("Not enough matching points")
+
+src_points = np.float32([
+    kp2[m.queryIdx].pt
+    for m in matches
+]).reshape(-1, 1, 2)
+
+dst_points = np.float32([
+    kp1[m.trainIdx].pt
+    for m in matches
+]).reshape(-1, 1, 2)
+
+H, mask = cv2.findHomography(
+    src_points,
+    dst_points,
+    cv2.RANSAC,
+    5.0
+)
+
+if H is None:
+    raise ValueError("Homography could not be estimated")
+
+height, width = img1.shape[:2]
+
+aligned = cv2.warpPerspective(
+    img2,
+    H,
+    (width, height)
+)
+
+img1_rgb = cv2.cvtColor(
+    img1,
+    cv2.COLOR_BGR2RGB
+)
+
+img2_rgb = cv2.cvtColor(
+    img2,
+    cv2.COLOR_BGR2RGB
+)
+
+aligned_rgb = cv2.cvtColor(
+    aligned,
+    cv2.COLOR_BGR2RGB
+)
+
+matched = cv2.drawMatches(
+    img2,
+    kp2,
+    img1,
+    kp1,
+    matches[:30],
+    None,
+    flags=2
+)
+
+matched_rgb = cv2.cvtColor(
+    matched,
+    cv2.COLOR_BGR2RGB
+)
+
+plt.figure(figsize=(14, 8))
+
+plt.subplot(2, 2, 1)
+plt.imshow(img1_rgb)
+plt.title("Reference Image")
+plt.axis("off")
+
+plt.subplot(2, 2, 2)
+plt.imshow(img2_rgb)
+plt.title("Input Image")
+plt.axis("off")
+
+plt.subplot(2, 2, 3)
+plt.imshow(matched_rgb)
+plt.title("ORB Feature Matches")
+plt.axis("off")
+
+plt.subplot(2, 2, 4)
+plt.imshow(aligned_rgb)
+plt.title("Aligned Image")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()

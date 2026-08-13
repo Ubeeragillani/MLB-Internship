@@ -1,0 +1,33 @@
+import numpy as np
+points = np.array([
+    [2, 3],
+    [4, 5],
+    [6, 1]
+])
+
+print("Original 2D Points")
+print(points)
+homogeneous_points = np.hstack([
+    points,
+    np.ones((points.shape[0], 1))
+])
+
+print("\nHomogeneous Coordinates:")
+print(homogeneous_points)
+tx = 10
+ty = 5
+
+translation_matrix = np.array([
+    [1, 0, tx],
+    [0, 1, ty],
+    [0, 0, 1]
+])
+transformed_points = translation_matrix @ homogeneous_points.T
+transformed_points = transformed_points.T
+
+print("\nTranslated Points:")
+print(transformed_points)
+final_points = transformed_points[:, :2]
+
+print("\nFinal 2D Points:")
+print(final_points)
