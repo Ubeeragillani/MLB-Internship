@@ -1,0 +1,5 @@
+A neural network consists of an input layer, hidden layer, and output layer. The input layer receives the data, the hidden layer processes the data using weights and bias, and the output layer gives the final prediction. The data flows from the input neurons to the hidden neurons and then to the output neuron.Neurons: x1, x2, x3, h1, h2, h3, y
+Weights: Connections between neurons
+Bias: An additional value used in the calculation
+Data flow:
+Input → Weighted Sum + Bias → Activation → Output

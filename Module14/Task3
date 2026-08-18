@@ -1,0 +1,9 @@
+import numpy as np
+inputs = np.array([2, 3, 4])
+weights = np.array([0.5, 0.2, 0.3])
+bias = 1
+weighted_sum = np.dot(inputs, weights) + bias
+output = max(0, weighted_sum)
+
+print("Weighted Sum:", weighted_sum)
+print("Final Output:", output)
