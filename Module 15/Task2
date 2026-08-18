@@ -1,0 +1,38 @@
+import numpy as np
+import matplotlib.pyplot as plt
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+def tanh(x):
+    return np.tanh(x)
+def relu(x):
+    return np.maximum(0, x)
+def leaky_relu(x):
+    return np.where(x > 0, x, 0.01 * x)
+def softmax(x):
+    exp_x = np.exp(x - np.max(x))
+    return exp_x / np.sum(exp_x)
+x = np.linspace(-10, 10, 100)
+sigmoid_output = sigmoid(x)
+tanh_output = tanh(x)
+relu_output = relu(x)
+leaky_relu_output = leaky_relu(x)
+plt.figure(figsize=(10, 6))
+plt.plot(x, sigmoid_output, label="Sigmoid")
+plt.plot(x, tanh_output, label="Tanh")
+plt.plot(x, relu_output, label="ReLU")
+plt.plot(x, leaky_relu_output, label="Leaky ReLU")
+
+plt.axhline(0)
+plt.axvline(0)
+
+plt.xlabel("Input (x)")
+plt.ylabel("Output")
+plt.title("Activation Functions")
+
+plt.legend()
+plt.grid()
+plt.show()
+scores = np.array([2.0, 1.0, 0.1])
+softmax_output = softmax(scores)
+print("Softmax Output:", softmax_output)
+print("Sum:", np.sum(softmax_output))

@@ -1,0 +1,26 @@
+import numpy as np
+X = np.array([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+])
+y = np.array([0, 0, 0, 1])
+weights = np.zeros(2)
+bias = 0
+learningrate = 0.1
+for epoch in range(10):
+    print("Epoch:", epoch + 1)
+    for i in range(len(X)):
+        x = X[i]
+        z = np.dot(x, weights) + bias
+        prediction = 1 if z >= 0 else 0
+        error = y[i] - prediction
+        weights = weights + learningrate * error * x
+        bias = bias + learningrate * error
+        print("Input", x)
+        print("Actual", y[i])
+        print("Prediction", prediction)
+        print("Weights", weights)
+        print("Bias", bias)
+        print()
