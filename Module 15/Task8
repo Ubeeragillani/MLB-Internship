@@ -1,0 +1,82 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
+
+torch.manual_seed(42)
+
+X = torch.tensor([
+    [1.0, 50.0],
+    [2.0, 55.0],
+    [3.0, 60.0],
+    [4.0, 65.0],
+    [5.0, 70.0],
+    [6.0, 75.0],
+    [7.0, 80.0],
+    [8.0, 85.0]
+])
+
+y = torch.tensor([
+    [50.0],
+    [55.0],
+    [60.0],
+    [65.0],
+    [70.0],
+    [75.0],
+    [80.0],
+    [85.0]
+])
+
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.hidden = nn.Linear(2, 8)
+        self.output = nn.Linear(8, 1)
+
+    def forward(self, x):
+        x = torch.relu(self.hidden(x))
+        return self.output(x)
+
+def train_model(optimizer_name):
+    torch.manual_seed(42)
+    model = NeuralNetwork()
+    criterion = nn.MSELoss()
+
+    if optimizer_name == "SGD":
+        optimizer = optim.SGD(model.parameters(), lr=0.0001)
+    elif optimizer_name == "Momentum":
+        optimizer = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9)
+    elif optimizer_name == "Adam":
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+    losses = []
+
+    for epoch in range(1000):
+        predictions = model(X)
+        loss = criterion(predictions, y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        losses.append(loss.item())
+
+    return losses
+
+sgd_losses = train_model("SGD")
+momentum_losses = train_model("Momentum")
+adam_losses = train_model("Adam")
+
+plt.plot(sgd_losses, label="SGD")
+plt.plot(momentum_losses, label="SGD with Momentum")
+plt.plot(adam_losses, label="Adam")
+
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Optimizer Comparison")
+plt.legend()
+plt.show()
+
+print("Final SGD Loss:", sgd_losses[-1])
+print("Final Momentum Loss:", momentum_losses[-1])
+print("Final Adam Loss:", adam_losses[-1])

@@ -1,0 +1,39 @@
+import torch
+from torchvision import transforms
+from PIL import Image
+import matplotlib.pyplot as plt
+
+image = Image.open("image.jpg")
+
+transformations = {
+    "Original": transforms.Compose([]),
+    "Flip": transforms.Compose([
+        transforms.RandomHorizontalFlip(p=1)
+    ]),
+    "Rotation": transforms.Compose([
+        transforms.RandomRotation(30)
+    ]),
+    "Crop": transforms.Compose([
+        transforms.RandomResizedCrop(size=(224, 224), scale=(0.7, 1.0))
+    ]),
+    "Scaling": transforms.Compose([
+        transforms.Resize((224, 224))
+    ]),
+    "Brightness": transforms.Compose([
+        transforms.ColorJitter(brightness=0.5)
+    ]),
+    "Contrast": transforms.Compose([
+        transforms.ColorJitter(contrast=0.5)
+    ])
+}
+
+fig, axes = plt.subplots(2, 4, figsize=(14, 7))
+
+for ax, (name, transform) in zip(axes.flat, transformations.items()):
+    transformed_image = transform(image)
+    ax.imshow(transformed_image)
+    ax.set_title(name)
+    ax.axis("off")
+
+plt.tight_layout()
+plt.show()
