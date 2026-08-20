@@ -1,0 +1,45 @@
+import numpy as np
+X = np.array([[1.0, 2.0]])
+y = np.array([[1.0]])
+W1 = np.array([
+    [0.5, 0.3],
+    [0.2, 0.4]
+])
+b1 = np.array([[0.1, 0.2]])
+W2 = np.array([
+    [0.6],
+    [0.7]
+])
+b2 = np.array([[0.1]])
+learning_rate = 0.1
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+def sigmoid_derivative(x):
+    s = sigmoid(x)
+    return s * (1 - s)
+for epoch in range(1000):
+    z1 = np.dot(X, W1) + b1
+    a1 = sigmoid(z1)
+    z2 = np.dot(a1, W2) + b2
+    y_pred = sigmoid(z2)
+    loss = np.mean((y - y_pred) ** 2)
+    dL_dy = 2 * (y_pred - y)
+    dy_dz2 = sigmoid_derivative(z2)
+    dz2 = dL_dy * dy_dz2
+    dW2 = np.dot(a1.T, dz2)
+    db2 = dz2
+    da1 = np.dot(dz2, W2.T)
+    dz1 = da1 * sigmoid_derivative(z1)
+    dW1 = np.dot(X.T, dz1)
+    db1 = dz1
+    W2 = W2 - learning_rate * dW2
+    b2 = b2 - learning_rate * db2
+    W1 = W1 - learning_rate * dW1
+    b1 = b1 - learning_rate * db1
+    if epoch % 100 == 0:
+        print("Epoch:", epoch)
+        print("Prediction:", y_pred)
+        print("Loss:", loss)
+        print()
+print("Final Prediction", y_pred)
+print("Final Loss", loss)
